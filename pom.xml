@@ -24,9 +24,30 @@
         <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-connector-kafka-0.11 -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-<!--   client版本0.11kafka版本2.11 flink版本1.7.2     -->
+            <!--   client版本0.11kafka版本2.11 flink版本1.7.2     -->
             <artifactId>flink-connector-kafka-0.11_2.11</artifactId>
             <version>1.7.2</version>
+        </dependency>
+
+        <!--    redis依赖    -->
+        <!-- https://mvnrepository.com/artifact/org.apache.bahir/flink-connector-redis -->
+        <dependency>
+            <groupId>org.apache.bahir</groupId>
+            <artifactId>flink-connector-redis_2.11</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <!--   elasticsearch 依赖     -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-elasticsearch6_2.11</artifactId>
+            <version>1.7.2</version>
+        </dependency>
+        <!--   mysql依赖     -->
+        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.44</version>
         </dependency>
     </dependencies>
 
