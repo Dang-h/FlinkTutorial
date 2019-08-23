@@ -3,6 +3,7 @@ package apiTest.sink
 import java.util.Properties
 
 import apiTest.source.{SensorReading, SensorSource}
+import apiTest.utils.MyUtils
 import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer011, FlinkKafkaProducer011}
@@ -31,7 +32,9 @@ object KafkaSink {
 		//”seneor“生产者生产数据
 		val stream: DataStream[String] = env.addSource(new FlinkKafkaConsumer011[String]("sensor", new SimpleStringSchema(), properties))
 
-		val dataStream: DataStream[String] = stream.map(data => {
+//		val dataStream: DataStream[SensorReading] = MyUtils.dataOptSimple(stream)
+
+		val dataStream: DataStream[String] = stream.map((data: String) => {
 			val dataArray: Array[String] = data.split(",")
 			SensorReading(dataArray(0).trim, dataArray(1).trim.toLong, dataArray(2).trim.toDouble).toString
 		})

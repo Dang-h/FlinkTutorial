@@ -3,6 +3,7 @@ package apiTest.sink
 import java.sql.{Connection, DriverManager, PreparedStatement}
 
 import apiTest.source.{SensorReading, SensorSource}
+import apiTest.utils.MyUtils
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.sink.{RichSinkFunction, SinkFunction}
 import org.apache.flink.streaming.api.scala._
@@ -17,15 +18,16 @@ object JdbsSink {
 
 		env.setParallelism(1)
 
-		val dataDS: DataStream[SensorReading] = inputDS1.map(data => {
-			val dataArray: Array[String] = data.split(",")
-			SensorReading(dataArray(0).trim, dataArray(1).trim.toLong, dataArray(2).trim.toDouble)
-		})
 
+		val dataDS: DataStream[SensorReading] = MyUtils.dataOptSimple(inputDS1)
 
+//		val dataDS: DataStream[SensorReading] = inputDS1.map(data => {
+//			val dataArray: Array[String] = data.split(",")
+//			SensorReading(dataArray(0).trim, dataArray(1).trim.toLong, dataArray(2).trim.toDouble)
+//		})
+
+		dataDS.addSink(new MyJdbcSink)
 		inputDS2.addSink(new MyJdbcSink)
-
-
 
 		env.execute("Jdbc sink Test")
 

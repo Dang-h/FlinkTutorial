@@ -3,6 +3,7 @@ package apiTest.sink
 import java.util
 
 import apiTest.source.SensorReading
+import apiTest.utils.MyUtils
 import org.apache.flink.api.common.functions.RuntimeContext
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.connectors.elasticsearch.{ElasticsearchSinkFunction, RequestIndexer}
@@ -51,10 +52,11 @@ object EsSink {
 
 		val inputDS: DataStream[String] = env.readTextFile("F:\\workSpace\\FlinkTutorial\\file\\sensor.txt")
 		//数据处理
-		val dataDS: DataStream[SensorReading] = inputDS.map(data => {
-			val dataArray: Array[String] = data.split(",")
-			SensorReading(dataArray(0).trim, dataArray(1).trim.toLong, dataArray(2).trim.toDouble)
-		})
+		val dataDS: DataStream[SensorReading] = MyUtils.dataOptSimple(inputDS)
+//		val dataDS: DataStream[SensorReading] = inputDS.map(data => {
+//			val dataArray: Array[String] = data.split(",")
+//			SensorReading(dataArray(0).trim, dataArray(1).trim.toLong, dataArray(2).trim.toDouble)
+//		})
 
 		//sink
 		dataDS.addSink(esSink.build())

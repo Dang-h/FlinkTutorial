@@ -1,6 +1,7 @@
 package apiTest.sink
 
 import apiTest.source.SensorReading
+import apiTest.utils.MyUtils
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.connectors.redis.RedisSink
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig
@@ -19,10 +20,12 @@ object RedisSink {
 
 		val inputDS: DataStream[String] = env.readTextFile("F:\\workSpace\\FlinkTutorial\\file\\sensor.txt")
 		//数据处理
-		val dataDS: DataStream[SensorReading] = inputDS.map(data => {
-			val dataArray: Array[String] = data.split(",")
-			SensorReading(dataArray(0).trim, dataArray(1).trim.toLong, dataArray(2).trim.toDouble)
-		})
+		val dataDS: DataStream[SensorReading] = MyUtils.dataOptSimple(inputDS)
+
+//		val dataDS: DataStream[SensorReading] = inputDS.map(data => {
+//			val dataArray: Array[String] = data.split(",")
+//			SensorReading(dataArray(0).trim, dataArray(1).trim.toLong, dataArray(2).trim.toDouble)
+//		})
 
 		//sink
 		dataDS.addSink(new RedisSink[SensorReading](config, new MyRedisSink()))
