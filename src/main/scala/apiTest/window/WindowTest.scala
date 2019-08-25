@@ -15,6 +15,7 @@ object WindowTest {
 		//设置全局并行度为1
 		env.setParallelism(1)
 
+
 		//从socket中获取数据
 		val inputDS: DataStream[String] = env.socketTextStream("sql", 7777)
 
@@ -36,20 +37,24 @@ object WindowTest {
 		val dataDS: DataStream[SensorReading] = MyUtils.dataOptSimple(inputDS)
 
 		//更改时间语义为eventTime（窗口划分根据事件创建时间）且定义watermark（水位）指定时间戳
-//		env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
+		env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 
 		//指定时间戳，处理乱序数据，延迟1秒上涨水面
-		dataDS.assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor[SensorReading](Time.seconds(1)) {
+		val timestampDS: DataStream[SensorReading] = dataDS.assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor[SensorReading](Time.seconds(1)) {
+			//指定时间戳
 			override def extractTimestamp(element: SensorReading): Long = element.timestamp * 1000
 		})
 
-		val minTempPerWindowByEventTimeDS: DataStream[(String, Double)] = dataDS.map(data => (data.id, data.temperature))
+
+		val minTempPerWindowByEventTimeDS: DataStream[(String, Double, Long)] = timestampDS.map(data => (data.id, data.temperature, data.timestamp))
 		  //得到KeyedStream
 		  .keyBy(_._1)
 		  //对10s内相同id的数据取时间最近温度最小值
-		  .timeWindow(Time.seconds(10))
+//		  	.timeWindow(Time.seconds(5))
+		  // 设置滑动窗口，窗口大小为10，步长为5
+		  .timeWindow(Time.seconds(10), Time.seconds(5))
 		  //使用reduce做增量聚合,回到DataStream
-		  .reduce((data1, data2) => (data1._1, data1._2.min(data2._2)))
+		  .reduce((data1, data2) => (data1._1, data1._2.min(data2._2), data2._3))
 
 		//		minTempPerWindowByProcessingTimeDS.print("min temp")
 		minTempPerWindowByEventTimeDS.print("min temp")
